@@ -26,7 +26,6 @@ const PostsList = () => {
     } else if (postsStatus === 'failed') {
         content = <p>{error}</p>
     }
-    console.log(posts)
 
     return (
         <section className="flex flex-col gap-2">
