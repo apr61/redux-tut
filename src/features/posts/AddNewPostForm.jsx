@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { postAdded } from "./postsSlice"
+import { addNewPost } from "./postsSlice"
 import { useDispatch, useSelector } from "react-redux"
 import { selectAllUsers } from "../users/usersSlice"
 
@@ -7,23 +7,31 @@ export const AddNewPostForm = () => {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [userId, setUserId] = useState('')
+    const [addNewPostRequest, setAddNewPostRequest] = useState('idle')
 
     const dispatch = useDispatch()
     const users = useSelector(selectAllUsers)
-    const canSave = [title, content, userId].every(Boolean)
+    const canSave = [title, content, userId].every(Boolean) && addNewPostRequest === 'idle'
 
-    const authorNames = users.map(user => (
+    const authorNamesOptions = users.map(user => (
         <option key={user.id} value={user.id}>{user.name}</option>
     ))
 
     function handleOnFormSubmit(e) {
         e.preventDefault()
-        dispatch(
-            postAdded( title, content, +userId)
-        )
-        setContent('')
-        setTitle('')
-        setUserId('')
+        try {
+            setAddNewPostRequest('pending')
+            dispatch(
+                addNewPost({ title, content, userId, reactions: { like: 0, wow: 0, heart: 0 } })
+            ).unwrap()
+            setContent('')
+            setTitle('')
+            setUserId('')
+        }catch(err){
+            console.error(err)
+        }finally{
+            setAddNewPostRequest('idle')
+        }
     }
 
     return (
@@ -47,7 +55,7 @@ export const AddNewPostForm = () => {
                     <label htmlFor="content" className="text-xl">Author</label>
                     <select className="p-2 bg-white border rounded-md text-lg" value={userId} onChange={(e) => setUserId(e.target.value)}>
                         <option value=''>Select a author</option>
-                        {authorNames}
+                        {authorNamesOptions}
                     </select>
                 </div>
                 <button

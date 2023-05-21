@@ -1,22 +1,33 @@
-import { useSelector } from "react-redux"
-import { selectAllPosts } from "./postsSlice"
-import { PostAuthor } from "./PostAuthor";
-import { PostReactions } from "./PostReactions";
+import { useDispatch, useSelector } from "react-redux"
+import { selectAllPosts, getPostStatus, getPostError, fetchPosts } from "./postsSlice"
+import { useEffect } from "react";
+import SinglePost  from "./SinglePost";
 
 
 const PostsList = () => {
+    const dispatch = useDispatch()
     const posts = useSelector(selectAllPosts)
+    const postsStatus = useSelector(getPostStatus)
+    const error = useSelector(getPostError)
+
+    useEffect(() => {
+        if (postsStatus === 'idle') {
+            dispatch(fetchPosts())
+        }
+    }, [postsStatus])
+
     let content;
-    content = posts.map(post => (
-        <article key={post.id} className="border rounded-md p-4">
-            <h2 className="text-2xl">{post.title}</h2>
-            <p className="text-gray-500">{post.content}</p>
-            <div className="flex gap-2">
-                <PostAuthor userId={post.userId} />
-            </div>
-            <PostReactions post={post}/>
-        </article>
-    ))
+    if (postsStatus === 'loading') {
+        content = <p>Loading...</p>
+    } else if (postsStatus === 'succeeded') {
+        content = posts.map(post => (
+            <SinglePost key={post.id} post={post} />
+        ))
+    } else if (postsStatus === 'failed') {
+        content = <p>{error}</p>
+    }
+    console.log(posts)
+
     return (
         <section className="flex flex-col gap-2">
             <h2 className="text-2xl text-center text-slate-700">Posts</h2>
