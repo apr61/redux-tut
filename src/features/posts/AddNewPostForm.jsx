@@ -1,14 +1,29 @@
 import { useState } from "react"
+import { postAdded } from "./postsSlice"
+import { useDispatch, useSelector } from "react-redux"
+import { selectAllUsers } from "../users/usersSlice"
 
 export const AddNewPostForm = () => {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
+    const [userId, setUserId] = useState('')
 
-    const canSave = [title, content].every(Boolean)
+    const dispatch = useDispatch()
+    const users = useSelector(selectAllUsers)
+    const canSave = [title, content, userId].every(Boolean)
+
+    const authorNames = users.map(user => (
+        <option key={user.id} value={user.id}>{user.name}</option>
+    ))
 
     function handleOnFormSubmit(e) {
         e.preventDefault()
-        console.log({ title, content })
+        dispatch(
+            postAdded( title, content, +userId)
+        )
+        setContent('')
+        setTitle('')
+        setUserId('')
     }
 
     return (
@@ -27,6 +42,13 @@ export const AddNewPostForm = () => {
                     <textarea type="text" id="content" name="content"
                         className="p-2 border rounded-md focus:outline focus:outline-slate-600 resize-none text-lg"
                         value={content} onChange={(e) => setContent(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="content" className="text-xl">Author</label>
+                    <select className="p-2 bg-white border rounded-md text-lg" value={userId} onChange={(e) => setUserId(e.target.value)}>
+                        <option value=''>Select a author</option>
+                        {authorNames}
+                    </select>
                 </div>
                 <button
                     className="bg-emerald-500 text-white p-2 rounded-md text-lg font-medium disabled:opacity-50"
