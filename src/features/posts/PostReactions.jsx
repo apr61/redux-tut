@@ -10,9 +10,7 @@ const REACTIONS_EMOJIS = {
 
 export const PostReactions = ({ post }) => {
     const dispatch = useDispatch()
-    function reactionOnClick() {
-
-    }
+   
     const reactionButtons = Object.entries(REACTIONS_EMOJIS).map(([name, emoji]) => (
         <button
             className='flex gap-2 items-center'
